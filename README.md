@@ -1,10 +1,12 @@
-🟨 JavaScript Projects
+🟨 JAVASCRIPT PROJECTS
 
 A collection of JavaScript exercises and mini-applications developed during my Web Application Development (DAW) studies.
 
 These projects cover the fundamentals of JavaScript: logic, functions, DOM manipulation, events, arrays, objects, JSON/XML handling, animations, fetch API, and communication with a server.
 
-📁 Projects Included 🟦 1. Introducción a JavaScript
+📁 PROJECTS INCLUDED 
+
+🟦 1. Introducción a JavaScript
 
 (ej00 – ej05) Ejercicios iniciales para practicar conceptos básicos: variables, entradas, salidas, condicionales, funciones y primeros eventos.
 
@@ -80,6 +82,14 @@ O usar la extensión Live Server de VS Code.
 
 🛠️ Technologies Used
 
-JavaScript (ES6+) HTML5 & CSS3 DOM Manipulation Events JSON / XML fetch API Animations Local server (Apache / Live Server) 👩‍💻 Author
+- JavaScript (ES6+)
+- HTML5 & CSS3
+- DOM Manipulation
+- Events JSON / XML
+- fetch API
+- Animations
+- Local server (Apache / Live Server)
+
+👩‍💻 Author
 
 Irene Hernández Full-Stack / Frontend Web Developer (DAW) Passionate about building interactive web applications.
