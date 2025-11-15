@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event reservations (Static)</title>
+  <style>
+    /* Embedded styles so this page works standalone */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #222;
+    }
+    /* Page container card */
+    .page { max-width: 980px; margin: 24px auto; padding: 18px 20px 28px; background: #fff; border-radius: 14px; box-shadow: 0 15px 40px rgba(0,0,0,0.12) }
+    .wrap { max-width: 760px; margin: 20px auto; padding: 0 16px; }
+    .wrap > h2 { text-align: center; margin: 10px 0 16px; }
+
+    /* Header (static for this standalone page) */
+    .static-header{ text-align:center; margin-bottom:10px; }
+    .static-header h1{ margin:0; color:#2d2b87; font-size: 32px; line-height: 1.1; }
+    .static-nav{ display:flex; justify-content:center; gap:16px; margin-top:6px; }
+    .static-nav a{ color:#333; text-decoration:none; }
+    .static-nav a:hover{ text-decoration:underline; }
+
+    /* Event cards and buttons */
+    .event{ background:#fff; border:1px solid #eee; border-radius:10px; padding:16px; margin-bottom:14px; display:flex; gap:16px; align-items:center; justify-content:space-between; box-shadow:0 10px 20px rgba(0,0,0,.06) }
+    .event h3{ margin:0 0 6px }
+    .muted{ color:#777 }
+    .success{ color:#1b5e20; margin-bottom:12px }
+    .error{ color:#b00020; margin: 12px 0; }
+    .btn{ background:#667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; border:none; border-radius:8px; padding:10px 16px; cursor:pointer; font-weight:600 }
+    .btn[disabled]{ background:#bbb; cursor:not-allowed }
+
+    /* Footer */
+    .site-footer{ width:100%; text-align:center; color:#888; margin:40px 0 0; display:block; }
+
+    /* Toast notification */
+    .toast{position:fixed;top:20px;right:20px;background:#2e7d32;color:#fff;padding:12px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);opacity:0;transform:translateY(-10px);transition:opacity .25s ease, transform .25s ease;z-index:1000}
+    .toast.show{opacity:1;transform:translateY(0)}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="static-header">
+      <h1>Erasmus Ljubljana</h1>
+      <nav class="static-nav">
+        <a href="../login.php">Sign in</a>
+        <a href="../logout.php" style="color:#b00020;font-weight:600">Log out</a>
+      </nav>
+    </header>
+
+    <div class="wrap">
+      <h2>Book events</h2>
+      <div id="events"></div>
+    </div>
+
+    <footer class="site-footer">
+      <small>&copy; Erasmus Ljubljana</small>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    // Helper: read query string param
+    function getParam(name){
+      const m = new URLSearchParams(window.location.search).get(name);
+      return m ? decodeURIComponent(m) : '';
+    }
+
+    // Show toast if msg param present (e.g., after booking server redirect)
+    (function(){
+      const msg = getParam('msg');
+      if(msg){
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        setTimeout(()=> t.classList.add('show'), 60);
+        setTimeout(()=> t.classList.remove('show'), 4000);
+      }
+    })();
+
+    // Demo sample events (used if API is empty/not available)
+    const SAMPLE_EVENTS = [
+      { id: 0, title: 'Welcome Party', description: 'Kickoff party for new Erasmus students', starts_at: '2025-11-20 21:00', capacity: 100, remaining: 100 },
+      { id: 0, title: 'City Tour', description: 'Guided tour around the historic center', starts_at: '2025-11-23 10:30', capacity: 40, remaining: 40 },
+      { id: 0, title: 'Language Exchange', description: 'Meetup to practice languages', starts_at: '2025-11-27 18:00', capacity: 60, remaining: 60 },
+    ];
+
+    function renderEvents(list, isSample=false){
+      const container = document.getElementById('events');
+      container.innerHTML = '';
+      list.forEach(ev => {
+        const remaining = typeof ev.remaining !== 'undefined' ? ev.remaining : (ev.capacity || 0);
+        const card = document.createElement('div');
+        card.className = 'event';
+        const left = `
+          <div>
+            <h3>${escapeHtml(ev.title || '')}${isSample ? ' <span class="muted" style="font-weight:400">(sample)</span>' : ''}</h3>
+            <div class="muted">Date: ${escapeHtml(ev.starts_at || '')} &middot; Capacity: ${Number(ev.capacity||0)} &middot; Remaining: ${Number(remaining||0)}</div>
+            ${ev.description ? `<p>${escapeHtml(ev.description)}</p>` : ''}
+          </div>`;
+        const right = isSample
+          ? `<div><button class="btn" type="button" disabled>Book</button></div>`
+          : `<div>
+               <form method="post" action="../events/reserve_action.php">
+                 <input type="hidden" name="event_id" value="${Number(ev.id)}" />
+                 <button class="btn" type="submit" ${Number(remaining) <= 0 ? 'disabled' : ''}>Book</button>
+               </form>
+             </div>`;
+        card.innerHTML = left + right;
+        container.appendChild(card);
+      });
+    }
+
+    // Render events from API with fallback to samples
+    async function loadEvents(){
+      const container = document.getElementById('events');
+      container.innerHTML = 'Loading events...';
+      try{
+        const res = await fetch('../api/events.php', { credentials: 'same-origin' });
+        if(!res.ok) throw new Error('Error loading events');
+        const data = await res.json();
+        if(!data.success) throw new Error(data.message || 'Unknown error');
+        const list = data.data || [];
+        if(list.length === 0){
+          container.innerHTML = '<p class="muted">No upcoming events (showing samples).</p>';
+          renderEvents(SAMPLE_EVENTS, true);
+          return;
+        }
+        renderEvents(list, false);
+      } catch(err){
+        console.error(err);
+        container.innerHTML = '<p class="muted">Could not load events (showing samples).</p>';
+        renderEvents(SAMPLE_EVENTS, true);
+      }
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+    }
+
+    loadEvents();
+  </script>
+</body>
+</html>
+
+
+

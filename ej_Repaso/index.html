@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="script.js"></script>
+    <title>EJ REPASO</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class = "container">
+        <h1>TO DO LIST</h1>
+        <table id ="tablaInput">
+            <tr>
+                <td> <input id="txtAdd" type="text" value="" placeholder="Agrega una tarea"></td>
+                <td><input id="btnAdd" type="button" value="Add to the LIST"></td>
+            </tr>    
+        </table>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>TASKS TO DO</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <ul id="dolist"></ul>   
+                    </td>
+                    <td> 
+                        <div class="d-flex gap-2">
+                            <input type="button" id="btnComp" value="C" class="btn btn-success">
+                            <input type="button" id="btnDel" value="D" class="btn btn-danger">
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>COMPLETE TASKS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <ul id="completeList"></ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>DELETE TASKS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <ul id="deleteList"></ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
